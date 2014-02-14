@@ -1,9 +1,9 @@
 __author__ = 'tylermorita'
 
-payload = {'trip': {'visibility': 0,
-                    'name': 'ZOMIGODDZ',
+payload = {'trip': {'bad_elevations': True,
+                    'visibility': 0,
+                    'name': 'Test',
                     'is_gps': True,
-                    'gear_id': 31333,
                     'track_points': [{"x": -122.68040339, "y": 45.51385591, "e": 82.0, "t": 1392414480},
                             {"x": -122.6803979, "y": 45.51386028, "e": 93.0, "t": 1392414481},
                             {"x": -122.68039959, "y": 45.51386291, "e": 97.0, "t": 1392414482},
