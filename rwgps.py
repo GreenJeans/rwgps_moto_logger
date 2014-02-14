@@ -3,7 +3,7 @@ __author__ = 'tylermorita'
 import json
 import requests
 from test_payloads import payload
-
+import config
 
 session = requests.session()
 
@@ -33,6 +33,6 @@ def submit_trip(data):
 
 
 if __name__ == '__main__':
-    login('tyler.morita@gmail.com', 'ch0k3r53773R')
+    login(config.email, config.password)
     resp = submit_trip(json.dumps(payload))
     print resp.headers, resp.text
