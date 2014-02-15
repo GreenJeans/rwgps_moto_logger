@@ -6,8 +6,6 @@ import requests
 # from test_payloads import payload
 import config
 
-session = requests.session()
-
 
 def login(email, password):
     '''get and set a session token'''
@@ -29,37 +27,42 @@ def login(email, password):
 
 
 def submit_trip(data):
+    '''post the trip'''
     url = 'http://beta.ridewithgps.com/trips'
-    params = {'auth_token': config.auth_token,
-              'api_key': 'as90b8eu'}
-    resp = session.post(url, data=data, headers={'content-type': 'application/json'}, params=params)
+    resp = session.post(url, data=data)
     return resp
 
 
 def make_payload(csv_file, name):
+    '''turn a csv of engine data into a payload for upload'''
     csv_file = csv.DictReader(open(csv_file))
-    data = []
-    data_list = []
+    track_points = []
     for row in csv_file:
-            data_list.append({"x": float(row['GPS Longitude']),
-                          "y": float(row['GPS Latitude']),
-                          "e": 10.0,
-                          "t": int(str(int(row['time']) / 1000)),
-                          "h": float(row['RPM']),
-                          "s": float(row['GPS Speed']),
-                          "c": float(row['Air Fuel Ratio (alt)']),
-                          "p": float(row['Boost'])})
-
+        track_points.append({"x": float(row['GPS Longitude']),
+                      "y": float(row['GPS Latitude']),
+                      "e": 10.0,
+                      "t": int(row['time']) / 1000,
+                      "h": float(row['RPM']),
+                      "s": int(round(float(row['GPS Speed']) * .447)),
+                      "c": float(row['Air Fuel Ratio (alt)']),
+                      "p": float(row['Boost'])})
     payload = {'trip': {'bad_elevations': True,
                         'visibility': 0,
                         'name': name,
                         'is_gps': True}}
-    payload['trip']['track_points'] = data_list
+    payload['trip']['track_points'] = track_points
+    # print json.dumps(payload, indent=4, sort_keys=True)
     return payload
 
 
 if __name__ == '__main__':
+    session = requests.session()
+    session.params = {'auth_token': config.auth_token,
+                      'api_key': 'as90b8eu'}
+    session.headers = {'content-type': 'application/json'}
+
     # login(config.email, config.password)
-    payload = make_payload('1392401367846.csv', 'SO COOL')
+    payload = make_payload('1392425135096.csv', 'DriveHome')
     resp = submit_trip(json.dumps(payload))
-    print resp.headers, resp.text
+    print 'Request:\nHeaders:\n{}\n\nParams:\n{}\n\nBody:\n{}\n\n'.format(session.headers, session.params, json.dumps(payload, indent=4))
+    print 'Response:\nHeaders:\n{}\n\nBody:\n{}'.format(resp.headers, resp.text)
