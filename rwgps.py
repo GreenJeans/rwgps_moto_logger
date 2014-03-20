@@ -18,19 +18,19 @@ def login(email, password):
               'app_version': '1.0.33',
               'password': password,
               'version': '2',
-              'apikey': 'as90b8eu'}
+              'apikey': config.api_key}
     resp = session.get(url, params=params)
     session.params = {'auth_token': resp.json()['user']['auth_token'],
                       'api_key': 'as90b8eu'}
-    print resp.json()['user']['auth_token']
-    return
+    auth_token = resp.json()['user']['auth_token']
+    print auth_token
+    return auth_token
 
 
 def submit_trip(data):
     '''post the trip'''
     url = 'http://beta.ridewithgps.com/trips'
-    resp = session.post(url, data=data)
-    return resp
+    return session.post(url, data=data)
 
 
 def make_payload(csv_file, name):
@@ -40,18 +40,17 @@ def make_payload(csv_file, name):
     for row in csv_file:
         track_points.append({"x": float(row['GPS Longitude']),
                              "y": float(row['GPS Latitude']),
-                             "e": 10.0,
+                             # "e": 10.0,
                              "t": int(row['time']) / 1000,
-                             "h": float(row['RPM']),
+                             "c": float(row['RPM']),
                              "s": round((float(row['GPS Speed']) * .447), 2),
-                             "c": float(row['Air Fuel Ratio (alt)']),
+                             "h": float(row['Air Fuel Ratio (alt)']),
                              "p": float(row['Boost'])})
     payload = {'trip': {'bad_elevations': True,
                         'visibility': 0,
                         'name': name,
                         'is_gps': True}}
     payload['trip']['track_points'] = track_points
-    # print json.dumps(payload, indent=4, sort_keys=True)
     return payload
 
 
